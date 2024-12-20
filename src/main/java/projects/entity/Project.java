@@ -114,4 +114,9 @@ public class Project {
     
     return result;
   }
+
+public void add(Project project) {
+	// TODO Auto-generated method stub
+	
+}
 }
