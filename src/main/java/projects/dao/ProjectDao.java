@@ -179,6 +179,74 @@ private static final String STEP_TABLE = "step";
 		}
 	
 	}
+	public boolean modifyProjectDetails(Project project) {
+		// @formatter:off
+		String sql = ""
+				+ "UPDATE " + PROJECT_TABLE + " SET "
+				+ "project_name = ?, "
+				+ "estimated_hours = ?, "
+				+ "actual_hours = ?, "
+				+ "difficulty + ?, "
+				+ "notes + ? "
+				+ "WHERE project_id = ?";
+		// @formatter:on
+		
+		try(Connection conn = DbConnection.getConnection()) {
+			startTransaction(conn);
+			
+			try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+				setParameter(stmt, 1, project.getProjectName(), String.class);
+				setParameter(stmt, 2, project.getEstimatedHours(), BigDecimal.class);
+				setParameter(stmt, 3, project.getActualHours(), BigDecimal.class);
+				setParameter(stmt, 4, project.getDifficulty(), Integer.class);
+				setParameter(stmt, 5, project.getNotes(), String.class);
+				setParameter(stmt, 6, project.getProjectId(), Integer.class);
+				
+				boolean modified = stmt.executeUpdate() == 1;
+				commitTransaction(conn);
+				
+				return modified;
+			}
+			catch(Exception e) {
+				rollbackTransaction(conn);
+				throw new Dbexception(e);
+			}
+		}
+		catch(SQLException e) {
+			throw new Dbexception(e);
+		}
+	}
+	public boolean deleteProject(Integer projectId) {
+		// formatter:off
+		String sql = "DELETE FROM " + PROJECT_TABLE + " WHERE project_id = ?";
+		// formatter:on
+		try(Connection conn = DbConnection.getConnection()){
+			startTransaction(conn);
+			
+			try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+				setParameter(stmt, 1, projectId, Integer.class);
+				
+				boolean deleted = stmt.executeUpdate() == 1;
+				
+				if (deleted) {
+					commitTransaction(conn);
+				} else {
+					rollbackTransaction(conn);
+				}
+				
+				return deleted;
+			} catch (Exception e) {
+				rollbackTransaction(conn);
+				throw new Dbexception(e);
+			
+			
+		} 
+			
+		} catch (SQLException e) {
+			throw new Dbexception(e);
+		
+	} 
+	}
 }
 
 
